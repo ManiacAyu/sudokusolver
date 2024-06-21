@@ -1,0 +1,22 @@
+.sudoku-grid {
+    display: grid;
+    gap: 2px;
+    margin: 20px auto;
+    width: 360px;
+    grid-template-columns: repeat(9, 1fr);
+    border: 3px solid #333;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .sudoku-row {
+    display: contents;
+  }
+  
+  .sudoku-row:nth-child(3n) .sudoku-cell {
+    border-bottom: 2px solid #000;
+  }
+  
+  .sudoku-cell:nth-child(3n) {
+    border-right: 2px solid #000;
+  }
+  
