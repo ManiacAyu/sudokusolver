@@ -24,8 +24,10 @@ const App = () => {
   const [grid, setGrid] = useState(emptyBoard);
   const [activeCell, setActiveCell] = useState(null);
   const [userInputs, setUserInputs] = useState({});
+  const [initiallyFilledCells, setInitiallyFilledCells] = useState([]);
   const [message, setMessage] = useState("");
   const [difficulty, setDifficulty] = useState("medium");
+  const [solvedGrid, setSolvedGrid] = useState(emptyBoard)
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -105,7 +107,7 @@ const App = () => {
     let newGrid = JSON.parse(JSON.stringify(emptyBoard));
     fillGrid(newGrid);
     let puzzleGrid = copyGrid(newGrid);
-
+    setSolvedGrid(newGrid);
     const difficultyLevels = {
       "very easy": 10,
       easy: 20,
@@ -136,6 +138,12 @@ const App = () => {
     } else {
       setGrid(puzzleGrid);
       setUserInputs({});
+      setInitiallyFilledCells(puzzleGrid.reduce((filled, row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
+          if (cell !== 0) filled.push(`${rowIndex}-${colIndex}`);
+        });
+        return filled;
+      }, []));
       setMessage("");
     }
   };
@@ -148,6 +156,8 @@ const App = () => {
   };
 
   const handleCellChange = (rowIndex, colIndex, value) => {
+    if (initiallyFilledCells.includes(`${rowIndex}-${colIndex}`)) return;
+
     const newGrid = copyGrid(grid);
     newGrid[rowIndex][colIndex] = value;
     setGrid(newGrid);
@@ -167,20 +177,35 @@ const App = () => {
     // Check each cell in the userInputs object
     for (const key in userInputs) {
       if (userInputs.hasOwnProperty(key)) {
-        const [rowIndex, colIndex] = key.split('-');
+        const [rowIndex, colIndex] = key.split("-");
         const value = parseInt(userInputs[key]);
 
         // Check if the value matches the solved grid value
-        if (grid[rowIndex][colIndex] !== value) {
+        if (solvedGrid[rowIndex][colIndex] !== value) {
           isValidSolution = false;
           break;
         }
       }
     }
-
-    if (isValidSolution) {
+    let wholeMatrixfilled = true;
+    for (let i = 0; i <= 9; i++) { 
+      for (let j = 0; j <= 9; j++) { 
+        if (grid[i][j] === 0) { 
+          wholeMatrixfilled = false;
+          break;
+        }
+      }
+      if (!wholeMatrixfilled) { 
+        break;
+      }
+    }
+    if (isValidSolution && wholeMatrixfilled) {
       setMessage("Hurray! You have solved the puzzle.");
-    } else {
+    }
+    else if (isValidSolution) { 
+      setMessage("Hurray! What you tried was correct but Try to fill full matrix or click on Solve.");
+    }
+    else {
       setMessage("OOPS! Try with other numbers.");
     }
   };
